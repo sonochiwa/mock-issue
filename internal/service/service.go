@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// PostMessage - функция сервисного слоя (бизнес-логика)
+// PostMessage - функция для обработки нашего POST запроса
 func PostMessage(request models.MessageRequest) (models.MessageResponse, error) {
 	// Переворачиваем входную строку
 	msg := helpers.RevertString(request.Message)

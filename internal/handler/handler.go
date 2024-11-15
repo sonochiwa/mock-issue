@@ -19,18 +19,18 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		postMessage(w, r)
 	default:
 		// Возвращаем ошибку, если клиент отправляет запрос
-		// с неподдерживаемым request-методом
+		// с неподдерживаемым методом запроса
 		http.Error(w, "Only GET and POST methods allowed.", http.StatusMethodNotAllowed)
 	}
 }
 
-// GetMessage - функция, для обработки get запроса
+// getMessage - функция, для обработки GET запроса
 func getMessage(w http.ResponseWriter, r *http.Request) {
-	// Устанавливаем заголовок (header), который будет означать
+	// Устанавливаем заголовок (header), который будет означать,
 	// что сервер возвращает данные в формате json
 	w.Header().Set("Content-Type", "application/json")
 
-	// Стандартный ответ сервера на ручку get это сообщение OK
+	// Стандартный ответ сервера на ручку GET это сообщение OK
 	message := models.MessageResponse{
 		Message: "OK",
 	}
@@ -45,7 +45,7 @@ func getMessage(w http.ResponseWriter, r *http.Request) {
 	response, err := json.Marshal(message)
 	if err != nil {
 		log.Println("error when json.Marshal response")
-		// InternalServerError (500) внутренняя ошибка сервера
+		// Внутренняя ошибка сервера - InternalServerError 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +57,7 @@ func getMessage(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-// getMessage - функция, для обработки postMessage запроса
+// postMessage - функция, для обработки post запроса пользователя
 func postMessage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -74,11 +74,21 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Передаем request пользователя в !!!сервисный слой!!!
+	// Не сложно заметить, что в слое хендлера
+	// ТОЛЬКО подготовка данных для их обработки в сервисном слое
+	// и подготовка данных для передачи клиенту
+	//
+	// Вся обработка данных, запись в базу и т.д. вынесена в другие слои
+	//
+	// Под подготовкой данных подразумевается запись
+	// из r *http.Request в структуру request := models.MessageRequest{}
+	//
+	// В самой функции хендлера НИКАКОЙ бизнес логики нет
+
+	// Передаем request пользователя в !!!сервисный слой!!! (так же называют слой use-case, слой бизнес логики)
 	result, err := service.PostMessage(request)
 	if err != nil {
 		log.Printf("service.PostMessage: %v", err)
-		// InternalServerError (500) внутренняя ошибка сервера
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +98,7 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 	response, err := json.Marshal(result)
 	if err != nil {
 		log.Println("error when json.Marshal response")
-		// InternalServerError (500) внутренняя ошибка сервера
+		// Внутренняя ошибка сервера - InternalServerError 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
