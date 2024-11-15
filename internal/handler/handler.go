@@ -77,7 +77,7 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 	// Передаем request пользователя в !!!сервисный слой!!!
 	result, err := service.PostMessage(request)
 	if err != nil {
-		log.Printf("service.PostMessage: %v\n", err)
+		log.Printf("service.PostMessage: %v", err)
 		// InternalServerError (500) внутренняя ошибка сервера
 		w.WriteHeader(http.StatusInternalServerError)
 		return
